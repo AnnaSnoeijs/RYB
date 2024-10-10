@@ -3,7 +3,7 @@
  - Olivia Abbo
 
 # Crying detection
- - 
+ - Wessel Meester
  - 
 
 # Algorithm
