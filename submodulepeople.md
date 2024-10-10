@@ -1,6 +1,6 @@
 # Heartbeat detection
  - Filip Vlasák
- - 
+ - Olivia Abbo
 
 # Crying detection
  - 
