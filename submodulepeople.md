@@ -8,7 +8,7 @@
 
 # Algorithm
  - Anna Snoeijs
- - 
+ - Cas Heiligers
 
 # Actuator module
  - Ron Rashi
