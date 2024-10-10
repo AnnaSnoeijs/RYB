@@ -4,7 +4,7 @@
 
 # Crying detection
  - Wessel Meester
- - 
+ - Giorgia Gemelli
 
 # Algorithm
  - Anna Snoeijs
