@@ -3,7 +3,7 @@
  - Olivia Abbo
 
 # Crying detection
- - Wessel Meester
+ - Mahmoud Rashwan
  - Giorgia Gemelli
 
 # Algorithm
@@ -12,4 +12,4 @@
 
 # Actuator module
  - Ron Rashi
- - 
+ - Wessel Meester
