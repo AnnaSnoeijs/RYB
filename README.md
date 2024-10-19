@@ -13,6 +13,6 @@
 |---|---|---|---|
 | Section 1 | 17-10-2024 | Everyone | Done |
 | Work Plan | 20-10-2024 | Ron Rashi | Done |
-| Section 2 | 01-12-2024 | Everyone  | In Progress |
-| Finish Sub-Modules | 17-10-2024 | Everyone  | Not Started |
+| Section 2 | 24-10-2024 | Everyone  | In Progress |
+| Finish Sub-Modules | 01-12-2024 | Everyone  | Not Started |
 | ... | ... | ... | ... |
