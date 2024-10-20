@@ -19,7 +19,7 @@ struct stress_t {
 
 
 void calcStress( struct stress_t *ToDo ){
-	ToDo->stress = ToDo->heartbeat / 2 - 20;
+	ToDo->stress = ToDo->heartbeat / 2;
 	if( ToDo->stress > 50 )return;
 	//TO DO: ADD CRY TO CALCULATION IF STRESS BELOW 50%
 }
@@ -54,7 +54,7 @@ void printData(
 	// display rest of info
 	a = command >> 4;
 	f = command & 0x0f;
-	sprintf(str, "Heartbeat %d", Matrix[a][f].heartbeat);
+	sprintf(str, "Heartbeat %d", Matrix[a][f].heartbeat + 40);
 	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
 	sprintf(str, "Volume %d", Matrix[a][f].volume);
 	displayDrawString(display, fx16G, 120, 32, (uint8_t *)str, TEXT_COLOR);
