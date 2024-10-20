@@ -9,7 +9,17 @@
 #define FREQUENCY_MAX 5
 
 #define BACKGROUND_COLOR RGB_BLACK
-#define TEXT_COLOR RGB_GREEN
+#define TEXT_COLOR       RGB_GREEN
+
+#define FONTSIZE 16
+#define FONTWIDTH 8
+
+#define LCD_MATRIX_X 40
+#define LCD_MATRIX_Y 40
+#define LCD_TEXT_X 48
+#define LCD_TEXT_Y 130
+#define LCD_TEXT_NUMBERS_X LCD_TEXT_X + 10.5 * FONTWIDTH
+
 
 struct stress_t {
 	uint8_t heartbeat;
@@ -25,18 +35,12 @@ void calcStress( struct stress_t *ToDo ){
 }
 
 
-void printData(
+void initPrintData(
 	display_t *display,
-	FontxFile *fx16G,
-	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX],
-	uint8_t  command
+	FontxFile *fx16G
 ){
-	char
-		str[512]="",
-		numstr[8];
-	uint8_t
-		a,
-		f;
+	char str[512]="";
+	uint8_t a, f;
 
 	// clear screen
 	displayFillScreen(display, BACKGROUND_COLOR);
@@ -44,26 +48,62 @@ void printData(
 	// display matrix
 	for( a = 0; a < AMPLITUDE_MAX; a++){
 		for( f = 0; f < FREQUENCY_MAX; f++){
-			sprintf(numstr, "%d ", Matrix[a][f].stress);
-			strcat(str, numstr);
+			strcat(str, "idk ");
 		}
-		displayDrawString(display, fx16G, 0, 16*(a+1), (uint8_t *)str, TEXT_COLOR);
+		displayDrawString(display, fx16G, LCD_MATRIX_X, LCD_MATRIX_Y + FONTSIZE*(a + 1), (uint8_t *)str, TEXT_COLOR);
 		str[0]='\0';
 	}
 
 	// display rest of info
+	displayDrawString(display, fx16G, LCD_TEXT_X, LCD_TEXT_Y + 1 * FONTSIZE, (uint8_t *)"Heartbeat:    bpm", TEXT_COLOR);
+	displayDrawString(display, fx16G, LCD_TEXT_X, LCD_TEXT_Y + 2 * FONTSIZE, (uint8_t *)"   Volume:    dB", TEXT_COLOR);
+	displayDrawString(display, fx16G, LCD_TEXT_X, LCD_TEXT_Y + 3 * FONTSIZE, (uint8_t *)"   Stress:    %", TEXT_COLOR);
+	displayDrawString(display, fx16G, LCD_TEXT_X, LCD_TEXT_Y + 4 * FONTSIZE, (uint8_t *)"Amplitude:", TEXT_COLOR);
+	displayDrawString(display, fx16G, LCD_TEXT_X, LCD_TEXT_Y + 5 * FONTSIZE, (uint8_t *)"Frequency:", TEXT_COLOR);
+}
+
+void printData(
+	display_t *display,
+	FontxFile *fx16G,
+	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX],
+	uint8_t  command
+){
+	char str[512]="";
+	uint8_t a, f;
+
+	// display current point in matrix
 	a = command >> 4;
 	f = command & 0x0f;
-	sprintf(str, "Heartbeat %d", Matrix[a][f].heartbeat + 40);
-	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Volume %d", Matrix[a][f].volume);
-	displayDrawString(display, fx16G, 120, 32, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Stress %d", Matrix[a][f].stress);
-	displayDrawString(display, fx16G, 120, 48, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Amplitude %d", a);
-	displayDrawString(display, fx16G, 120, 64, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Frequency %d", f);
-	displayDrawString(display, fx16G, 120, 80, (uint8_t *)str, TEXT_COLOR);
+	displayDrawFillRect(
+		display,
+		LCD_MATRIX_X + 4 * FONTWIDTH * f,
+		LCD_MATRIX_Y +     FONTSIZE  * a,
+		LCD_MATRIX_X + 4 * FONTWIDTH * (f + 1),
+		LCD_MATRIX_Y +     FONTSIZE  * (a + 1),
+		BACKGROUND_COLOR
+	);
+	sprintf(str, "%02d%%", Matrix[a][f].stress);
+	displayDrawString(display, fx16G, LCD_MATRIX_X + 4 * FONTWIDTH * f, LCD_MATRIX_Y + FONTSIZE  * (a + 1), (uint8_t *)str, TEXT_COLOR);
+
+	// display rest of info
+	displayDrawFillRect(
+		display,
+		LCD_TEXT_NUMBERS_X,
+		LCD_TEXT_Y,
+		LCD_TEXT_NUMBERS_X + 3 * FONTWIDTH,
+		LCD_TEXT_Y         + 5 * FONTSIZE,
+		BACKGROUND_COLOR
+	);
+	sprintf(str, "%03d", Matrix[a][f].heartbeat + 40);
+	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
+	sprintf(str, "%03d", Matrix[a][f].volume);
+	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
+	sprintf(str, "%03d", Matrix[a][f].stress);
+	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 3 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
+	sprintf(str, "%d", a);
+	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 4 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
+	sprintf(str, "%d", f);
+	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 5 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
 }
 
 void tempCommandUpdateFunc(uint8_t *command){
@@ -83,12 +123,6 @@ int main(){
 	pynq_init();
 	buttons_init();
 
-	// set up screen
-	display_t display;
-	display_init(&display);
-	display_set_flip(&display, true, true);
-	displayFillScreen(&display, BACKGROUND_COLOR);
-
 	// set up screen font
 	uint8_t
 		buffer_fx16G[FontxGlyphBufSize],
@@ -97,6 +131,14 @@ int main(){
 	InitFontx(fx16G, "/boot/ILGH16XB.FNT", "");
 	GetFontx(fx16G, 0, buffer_fx16G, &fontWidth_fx16G, &fontHeight_fx16G);
 
+	// set up screen
+	display_t display;
+	display_init(&display);
+	display_set_flip(&display, true, true);
+	//displayFillScreen(&display, BACKGROUND_COLOR);
+
+	initPrintData(&display, fx16G);
+
 	// set up IIC0 on the arduino SCL and SDA lines
 	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
 	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
@@ -104,8 +146,8 @@ int main(){
 
 	// initialise variabes
 	uint8_t
-		Amplitude = 3,
-		Frequency = 5,
+		Amplitude = 2,
+		Frequency = 3,
 		Heartbeat = 0,
 		Volume = 0,
 		Command;
@@ -115,6 +157,14 @@ int main(){
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
+		// read from crying and heartbeat submodules
+		iic_read_register(IIC0, CRYING_ADDRESS, 0, &Volume, 1 );
+		Matrix[Amplitude][Frequency].volume = Volume;
+		iic_read_register(IIC0, HEARTBEAT_ADDRESS, 0, &Heartbeat, 1 );
+		Matrix[Amplitude][Frequency].heartbeat = Heartbeat;
+
+		// calculate stress
+		calcStress( &Matrix[Amplitude][Frequency] );
 
 		// set command
 		tempCommandUpdateFunc(&Command);
@@ -123,12 +173,6 @@ int main(){
 
 		// send command to actuator submodule
 		iic_write_register(IIC0, ACTUATOR_ADDRESS, 0, &Command, 1 );
-
-		// read from crying and heartbeat submodules
-		iic_read_register(IIC0, CRYING_ADDRESS, 0, &Volume, 1 );
-		Matrix[Amplitude][Frequency].volume = Volume;
-		iic_read_register(IIC0, HEARTBEAT_ADDRESS, 0, &Heartbeat, 1 );
-		Matrix[Amplitude][Frequency].heartbeat = Heartbeat;
 
 		printData(&display, fx16G, Matrix, Command);
 
