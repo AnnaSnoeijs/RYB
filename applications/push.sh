@@ -20,7 +20,7 @@ updatedifs() {
 }
 
 echo Updating git repo
-updatedifs "~/libpynq-5EWC0-2023-v0.2.6/applications/ ./"
+updatedifs "~/libpynq-5EWC0-2023-v0.2.6/applications/ ~/git/RYB/applications"
 
 git add --all .
 git commit -m "Synced to $(hostname)"

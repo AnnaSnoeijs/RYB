@@ -21,6 +21,6 @@ updatedifs() {
 
 echo Pulling git
 git pull
-updatedifs "./ ~/libpynq-5EWC0-2023-v0.2.6/applications/"
+updatedifs "~/git/RYB/applications/  ~/libpynq-5EWC0-2023-v0.2.6/applications/"
 
 IFS=$OLDIFS
