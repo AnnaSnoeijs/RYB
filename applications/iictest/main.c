@@ -114,7 +114,7 @@ int main(){
 	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX];
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
-	for(;;){ // stuff is gonna loop but this is just temporary
+	for(;;){
 
 		// set command
 		tempCommandUpdateFunc(&Command);
