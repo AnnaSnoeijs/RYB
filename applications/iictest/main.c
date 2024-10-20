@@ -17,11 +17,13 @@ struct stress_t {
 	uint8_t stress;
 };
 
+
 void calcStress( struct stress_t *ToDo ){
 	ToDo->stress = ToDo->heartbeat / 2 - 20;
 	if( ToDo->stress > 50 )return;
 	//TO DO: ADD CRY TO CALCULATION IF STRESS BELOW 50%
 }
+
 
 void printData(
 	display_t *display,
@@ -52,42 +54,34 @@ void printData(
 	// display rest of info
 	a = command >> 4;
 	f = command & 0x0f;
-	sprintf(
-		str,
-		"Heartbeat %d",
-		Matrix[a][f].heartbeat
-	);
+	sprintf(str, "Heartbeat %d", Matrix[a][f].heartbeat);
 	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
-	sprintf(
-		str,
-		"Volume %d",
-		Matrix[a][f].volume
-	);
+	sprintf(str, "Volume %d", Matrix[a][f].volume);
 	displayDrawString(display, fx16G, 120, 32, (uint8_t *)str, TEXT_COLOR);
-	sprintf(
-		str,
-		"Stress %d",
-		Matrix[a][f].stress
-	);
+	sprintf(str, "Stress %d", Matrix[a][f].stress);
 	displayDrawString(display, fx16G, 120, 48, (uint8_t *)str, TEXT_COLOR);
-	sprintf(
-		str,
-		"Amplitude %d",
-		a
-	);
+	sprintf(str, "Amplitude %d", a);
 	displayDrawString(display, fx16G, 120, 64, (uint8_t *)str, TEXT_COLOR);
-	sprintf(
-		str,
-		"Frequency %d",
-		f
-	);
+	sprintf(str, "Frequency %d", f);
 	displayDrawString(display, fx16G, 120, 80, (uint8_t *)str, TEXT_COLOR);
+}
+
+void tempCommandUpdateFunc(uint8_t *command){
+	if(get_button_state(0))
+		*command -= 1;
+	if(get_button_state(1))
+		*command += 1;
+	if(get_button_state(2))
+		*command -= 0x10;
+	if(get_button_state(3))
+		*command += 0x10;
 }
 
 int main(){
 	// It ain't a bo'o o' wo'er init?
 	// Ra'er sunny wea'er init?
 	pynq_init();
+	buttons_init();
 
 	// set up screen
 	display_t display;
@@ -115,13 +109,19 @@ int main(){
 		Heartbeat = 0,
 		Volume = 0,
 		Command;
+	Command = ( (Amplitude << 4) + Frequency );
 
 	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX];
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
-	for(;!Command;){ // stuff is gonna loop but this is just temporary
+	for(;;){ // stuff is gonna loop but this is just temporary
+
+		// set command
+		tempCommandUpdateFunc(&Command);
+		Amplitude = Command >> 4;
+		Frequency = Command & 0x0f;
+
 		// send command to actuator submodule
-		Command = ( (Amplitude << 4) + Frequency );
 		iic_write_register(IIC0, ACTUATOR_ADDRESS, 0, &Command, 1 );
 
 		// read from crying and heartbeat submodules
@@ -130,17 +130,14 @@ int main(){
 		iic_read_register(IIC0, HEARTBEAT_ADDRESS, 0, &Heartbeat, 1 );
 		Matrix[Amplitude][Frequency].heartbeat = Heartbeat;
 
-		printData( &display, fx16G, Matrix, Command);
+		printData(&display, fx16G, Matrix, Command);
 
-/*
-		// print stuff to screen
-		char *str = "Sent c:";
-		displayDrawString(&display, fx16G, 100, 100, (uint8_t *)str, TEXT_COLOR);
-*/
+		sleep_msec(1000);
 	}
 
 	//		DESTROY EVERYTHING
 	display_destroy(&display);
+	buttons_destroy();
 	pynq_destroy();
 	return EXIT_SUCCESS;
 }
