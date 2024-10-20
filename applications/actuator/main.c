@@ -72,7 +72,7 @@ int main(){
 	);
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
-	for(;;){ // stuff is gonna loop but this is just temporary
+	for(;;){
 
 		// set command
 		iic_slave_mode_handler(IIC0);
