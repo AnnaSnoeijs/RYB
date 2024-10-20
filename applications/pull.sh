@@ -21,8 +21,6 @@ updatedifs() {
 
 echo Pulling git
 git pull
-
-echo Updating home from git repo
-updatedifs "./ ~"
+updatedifs "./ ~/libpynq-5EWC0-2023-v0.2.6/applications/"
 
 IFS=$OLDIFS
