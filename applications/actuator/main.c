@@ -74,7 +74,7 @@ int main(){
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
 
-		// set command
+		// get command
 		iic_slave_mode_handler(IIC0);
 		Amplitude = Command >> 4;
 		Frequency = Command & 0x0f;

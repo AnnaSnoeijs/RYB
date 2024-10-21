@@ -5,6 +5,8 @@
 #define HEARTBEAT_ADDRESS 0x20
 #define ACTUATOR_ADDRESS  0x40
 
+#define HEARTBEATOFFSET 40
+
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR RGB_GREEN
 
@@ -14,7 +16,7 @@ void printData(
 	uint8_t  heartbeat
 ){
 	char str[16]="";
-	sprintf(str, "Heartbeat %d", heartbeat + 40);
+	sprintf(str, "Heartbeat %d", heartbeat + HEARTBEATOFFSET);
 	displayFillScreen(display, BACKGROUND_COLOR);
 	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
 }
@@ -68,7 +70,7 @@ int main(){
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
 
-		// set command
+		// set heartbeat
 		tempHeartbeatUpdateFunc(&Heartbeat);
 
 		iic_slave_mode_handler(IIC0);

@@ -8,6 +8,8 @@
 #define AMPLITUDE_MAX 5
 #define FREQUENCY_MAX 5
 
+#define HEARTBEATOFFSET 40
+
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR       RGB_GREEN
 
@@ -29,7 +31,7 @@ struct stress_t {
 
 
 void calcStress( struct stress_t *ToDo ){
-	ToDo->stress = ToDo->heartbeat / 2;
+	ToDo->stress = (ToDo->heartbeat - (40 - HEARTBEATOFFSET)) / 2;
 	if( ToDo->stress > 50 )return;
 	//TO DO: ADD CRY TO CALCULATION IF STRESS BELOW 50%
 }
@@ -94,7 +96,7 @@ void printData(
 		LCD_TEXT_Y         + 5 * FONTSIZE,
 		BACKGROUND_COLOR
 	);
-	sprintf(str, "%03d", Matrix[a][f].heartbeat + 40);
+	sprintf(str, "%03d", Matrix[a][f].heartbeat + HEARTBEATOFFSET);
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
 	sprintf(str, "%03d", Matrix[a][f].volume);
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);

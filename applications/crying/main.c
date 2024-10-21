@@ -68,7 +68,7 @@ int main(){
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
 
-		// set command
+		// set volume
 		tempVolumeUpdateFunc(&Volume);
 
 		iic_slave_mode_handler(IIC0);
