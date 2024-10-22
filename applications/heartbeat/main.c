@@ -77,7 +77,7 @@ int main(){
 
 		printData(&display, fx16G, Heartbeat);
 
-		sleep_msec(1000);
+		sleep_msec(10);
 	}
 
 	//		DESTROY EVERYTHING

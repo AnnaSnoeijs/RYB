@@ -81,7 +81,7 @@ int main(){
 
 		printData(&display, fx16G, Command);
 
-		sleep_msec(1000);
+		sleep_msec(10);
 	}
 
 	//		DESTROY EVERYTHING

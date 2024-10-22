@@ -174,11 +174,12 @@ int main(){
 		Frequency = Command & 0x0f;
 
 		// send command to actuator submodule
-		iic_write_register(IIC0, ACTUATOR_ADDRESS, 0, &Command, 1 );
+		printf("try send command %x \n", Command);
+		if ( iic_write_register(IIC0, ACTUATOR_ADDRESS, 1, &Command, 1 ) ) printf("Actuator send is brokn\n");
 
 		printData(&display, fx16G, Matrix, Command);
 
-		sleep_msec(1000);
+		sleep_msec(10);
 	}
 
 	//		DESTROY EVERYTHING
