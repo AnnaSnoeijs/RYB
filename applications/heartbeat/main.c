@@ -60,6 +60,7 @@ int main(){
 	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
 	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
 	iic_init(IIC0);
+	iic_reset(IIC0);
 	iic_set_slave_mode (
 		IIC0,
 		HEARTBEAT_ADDRESS,

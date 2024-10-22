@@ -3,6 +3,7 @@
 
 #define CRYING_ADDRESS    0x10
 #define HEARTBEAT_ADDRESS 0x20
+#define ALGORITHM_ADDRESS 0x30
 #define ACTUATOR_ADDRESS  0x40
 
 #define AMPLITUDE_MAX 5
@@ -21,7 +22,6 @@
 #define LCD_TEXT_X 48
 #define LCD_TEXT_Y 130
 #define LCD_TEXT_NUMBERS_X LCD_TEXT_X + 10.5 * FONTWIDTH
-
 
 struct stress_t {
 	uint8_t heartbeat;
@@ -92,7 +92,7 @@ void printData(
 		display,
 		LCD_TEXT_NUMBERS_X,
 		LCD_TEXT_Y,
-		LCD_TEXT_NUMBERS_X + 3 * FONTWIDTH,
+		LCD_TEXT_NUMBERS_X + 2 * FONTWIDTH,
 		LCD_TEXT_Y         + 5 * FONTSIZE,
 		BACKGROUND_COLOR
 	);
@@ -141,11 +141,6 @@ int main(){
 
 	initPrintData(&display, fx16G);
 
-	// set up IIC0 on the arduino SCL and SDA lines
-	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
-	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
-	iic_init(IIC0);
-
 	// initialise variabes
 	uint8_t
 		Amplitude = 2,
@@ -154,6 +149,24 @@ int main(){
 		Volume = 0,
 		Command;
 	Command = ( (Amplitude << 4) + Frequency );
+
+	// set up IIC0 on the arduino SCL and SDA lines
+	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
+	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
+	iic_init(IIC0);
+	iic_reset(IIC0);
+
+	// and the stupid iic1 slave because we can't write to slaves
+	switchbox_set_pin(IO_AR1, SWB_IIC1_SCL);
+	switchbox_set_pin(IO_AR0, SWB_IIC1_SDA);
+	iic_init(IIC1);
+	iic_reset(IIC1);
+	iic_set_slave_mode (
+		IIC1,
+		ALGORITHM_ADDRESS,
+		(uint32_t *)&Command,
+		1
+	);
 
 	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX];
 
@@ -174,8 +187,11 @@ int main(){
 		Frequency = Command & 0x0f;
 
 		// send command to actuator submodule
-		printf("try send command %x \n", Command);
-		if ( iic_write_register(IIC0, ACTUATOR_ADDRESS, 1, &Command, 1 ) ) printf("Actuator send is brokn\n");
+		//iic_write_register(IIC0, ACTUATOR_ADDRESS, 1, &Command, 1); // Should work but doesn't
+
+		/* stupid temp actuator fix*/
+		iic_slave_mode_handler(IIC1);
+		/* end of temp actuator fix*/
 
 		printData(&display, fx16G, Matrix, Command);
 

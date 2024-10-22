@@ -3,6 +3,7 @@
 
 #define CRYING_ADDRESS    0x10
 #define HEARTBEAT_ADDRESS 0x20
+#define ALGORITHM_ADDRESS 0x30
 #define ACTUATOR_ADDRESS  0x40
 
 #define AMPLITUDE_MAX 5
@@ -64,18 +65,25 @@ int main(){
 	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
 	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
 	iic_init(IIC0);
+	iic_reset(IIC0);
+
+// don't work :c /*
 	iic_set_slave_mode (
 		IIC0,
 		ACTUATOR_ADDRESS,
 		(uint32_t *)&Command,
 		1
 	);
-
+/**/
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
 
 		// get command
+		//* is brokeys :c
 		iic_slave_mode_handler(IIC0);
+		/*/
+		iic_read_register(IIC0, HEARTBEAT_ADDRESS, 0, &Command, 1 );
+		/**/
 		Amplitude = Command >> 4;
 		Frequency = Command & 0x0f;
 
