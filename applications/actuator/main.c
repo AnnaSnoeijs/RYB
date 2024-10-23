@@ -79,10 +79,10 @@ int main(){
 	for(;;){
 
 		// get command
-		//* is brokeys :c
+		/* is brokeys :c
 		iic_slave_mode_handler(IIC0);
 		/*/
-		iic_read_register(IIC0, HEARTBEAT_ADDRESS, 0, &Command, 1 );
+		iic_read_register(IIC0, ALGORITHM_ADDRESS, 0, &Command, 1 );
 		/**/
 		Amplitude = Command >> 4;
 		Frequency = Command & 0x0f;
