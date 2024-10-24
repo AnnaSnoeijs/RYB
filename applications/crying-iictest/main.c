@@ -3,11 +3,7 @@
 
 #define CRYING_ADDRESS    0x10
 #define HEARTBEAT_ADDRESS 0x20
-#define ALGORITHM_ADDRESS 0x30
 #define ACTUATOR_ADDRESS  0x40
-
-#define AMPLITUDE_MAX 5
-#define FREQUENCY_MAX 5
 
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR RGB_GREEN
@@ -15,30 +11,30 @@
 void printData(
 	display_t *display,
 	FontxFile *fx16G,
-	uint8_t  command
+	uint8_t  volume
 ){
-	char
-		str[512]="";
-	uint8_t
-		a,
-		f;
-
-	// clear screen
+	char str[16]="";
+	sprintf(str, "Volume %d", volume);
 	displayFillScreen(display, BACKGROUND_COLOR);
-
-	// display rest of info
-	a = command >> 4;
-	f = command & 0x0f;
-	sprintf(str, "Amplitude %d", a);
 	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Frequency %d", f);
-	displayDrawString(display, fx16G, 120, 32, (uint8_t *)str, TEXT_COLOR);
+}
+
+void tempVolumeUpdateFunc(uint8_t *volume){
+	if(get_button_state(0))
+		*volume -= 1;
+	if(get_button_state(1))
+		*volume += 1;
+	if(get_button_state(2))
+		*volume -= 50;
+	if(get_button_state(3))
+		*volume += 50;
 }
 
 int main(){
 	// It ain't a bo'o o' wo'er init?
 	// Ra'er sunny wea'er init?
 	pynq_init();
+	buttons_init();
 
 	// set up screen
 	display_t display;
@@ -56,32 +52,36 @@ int main(){
 
 	// initialise variabes
 	uint8_t
-		Amplitude = 3,
-		Frequency = 5,
-		Command;
-	Command = ( (Amplitude << 4) + Frequency );
+		Volume = 0;
 
 	// set up IIC0 on the arduino SCL and SDA lines
-	switchbox_set_pin(IO_AR1, SWB_IIC0_SCL);
-	switchbox_set_pin(IO_AR0, SWB_IIC0_SDA);
-	iic_init(IIC1);
-	iic_reset(IIC1);
+	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
+	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
+	iic_init(IIC0);
+	iic_reset(IIC0);
+	iic_set_slave_mode (
+		IIC0,
+		CRYING_ADDRESS,
+		(uint32_t *)&Volume,
+		1
+	);
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
 	for(;;){
 
-		// get command
-		iic_read_register(IIC1, ALGORITHM_ADDRESS, 0, &Command, 1 );
-		Amplitude = Command >> 4;
-		Frequency = Command & 0x0f;
+		// set volume
+		tempVolumeUpdateFunc(&Volume);
 
-		printData(&display, fx16G, Command);
+		iic_slave_mode_handler(IIC0);
+
+		printData(&display, fx16G, Volume);
 
 		sleep_msec(10);
 	}
 
 	//		DESTROY EVERYTHING
 	display_destroy(&display);
+	buttons_destroy();
 	pynq_destroy();
 	return EXIT_SUCCESS;
 }
