@@ -25,22 +25,24 @@ void printInt(
 ){
 	char str[32]="";
 	int size = sprintf(str, string, n);
-	displayDrawFillRect(
-		display,
-		x,
-		y,
-		x + size * FONTWIDTH,
-		y + FONTSIZE - 1,
-		BACKGROUND_COLOR
-	);
-	displayDrawString(
-		display,
-		fx16G,
-		x,
-		y + FONTSIZE,
-		(uint8_t *)str,
-		TEXT_COLOR
-	);
+	for(int i = 0; i < size; i++){
+		displayDrawFillRect(
+	        	display,
+	        	x + i * FONTWIDTH,
+	        	y,
+	        	x + (i+1) * FONTWIDTH,
+	        	y + FONTSIZE - 1,
+	        	BACKGROUND_COLOR
+		);
+		displayDrawChar(
+			display,
+			fx16G,
+	        	x + i * FONTWIDTH,
+	        	y + FONTSIZE,
+			str[i],
+			TEXT_COLOR
+		);
+	}
 }
 
 void initPrintData(
