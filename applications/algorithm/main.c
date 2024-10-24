@@ -9,8 +9,6 @@
 #define AMPLITUDE_MAX 5
 #define FREQUENCY_MAX 5
 
-#define HEARTBEATOFFSET 40
-
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR       RGB_GREEN
 
@@ -30,12 +28,36 @@ struct stress_t {
 };
 
 
-void calcStress( struct stress_t *ToDo ){
-	ToDo->stress = (ToDo->heartbeat - (40 - HEARTBEATOFFSET)) / 2;
-	if( ToDo->stress > 50 )return;
+void calcStress( struct stress_t *Stress ){
+	if( Stress->heartbeat < 40 ){
+		Stress->stress = 0;
+		return;
+		}
+	Stress->stress = (Stress->heartbeat - 40) / 2;
+	if( Stress->stress > 50 )return;
 	//TO DO: ADD CRY TO CALCULATION IF STRESS BELOW 50%
 }
 
+void printInt(
+	display_t *display,
+	FontxFile *fx16G,
+	int x,
+	int y,
+	const char *string,
+	int n
+){
+	char str[32]="";
+	int size = sprintf(str, string, n);
+	displayDrawFillRect(
+	        display,
+	        x,
+	        y,
+	        x + size * FONTWIDTH,
+	        y + FONTSIZE - 1,
+	        BACKGROUND_COLOR
+	);
+	displayDrawString(display, fx16G, x, y, (uint8_t *)str, TEXT_COLOR);
+}
 
 void initPrintData(
 	display_t *display,
@@ -88,15 +110,16 @@ void printData(
 	displayDrawString(display, fx16G, LCD_MATRIX_X + 4 * FONTWIDTH * f, LCD_MATRIX_Y + FONTSIZE  * (a + 1), (uint8_t *)str, TEXT_COLOR);
 
 	// display rest of info
+	/* old code
 	displayDrawFillRect(
 		display,
 		LCD_TEXT_NUMBERS_X,
 		LCD_TEXT_Y,
-		LCD_TEXT_NUMBERS_X + 2 * FONTWIDTH,
-		LCD_TEXT_Y         + 5 * FONTSIZE,
+		LCD_TEXT_NUMBERS_X + 3 * FONTWIDTH,
+		LCD_TEXT_Y	 + 5 * FONTSIZE,
 		BACKGROUND_COLOR
 	);
-	sprintf(str, "%03d", Matrix[a][f].heartbeat + HEARTBEATOFFSET);
+	sprintf(str, "%03d", Matrix[a][f].heartbeat);
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
 	sprintf(str, "%03d", Matrix[a][f].volume);
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
@@ -106,16 +129,23 @@ void printData(
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 4 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
 	sprintf(str, "%d", f);
 	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 5 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
+	/*/
+	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, "%03d", Matrix[a][f].heartbeat);
+	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, "%03d", Matrix[a][f].volume);
+	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 3 * FONTSIZE, "%03d", Matrix[a][f].stress);
+	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 4 * FONTSIZE, "%d", a);
+	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 5 * FONTSIZE, "%d", f);
+	/**/
 }
 
 void tempCommandUpdateFunc(uint8_t *command){
-	if(get_button_state(0))
+	if(get_button_state(0) && (*command & 0x0f))
 		*command -= 1;
-	if(get_button_state(1))
+	if(get_button_state(1) && (*command & 0x0f) < 4 )
 		*command += 1;
-	if(get_button_state(2))
+	if(get_button_state(2) && (*command & 0xf0))
 		*command -= 0x10;
-	if(get_button_state(3))
+	if(get_button_state(3) && (*command < 0x40))
 		*command += 0x10;
 }
 
@@ -171,6 +201,7 @@ int main(){
 	struct stress_t Matrix[AMPLITUDE_MAX][FREQUENCY_MAX];
 
 	//		START OF CODE THAT ACTUALLY DOES STUFF
+	printf("actually started doing stuff\n");
 	for(;;){
 		// read from crying and heartbeat submodules
 		iic_read_register(IIC0, CRYING_ADDRESS, 0, &Volume, 1 );
@@ -199,6 +230,7 @@ int main(){
 	}
 
 	//		DESTROY EVERYTHING
+	printf("destroying everything c:\n");
 	display_destroy(&display);
 	buttons_destroy();
 	pynq_destroy();

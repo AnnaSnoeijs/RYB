@@ -5,8 +5,6 @@
 #define HEARTBEAT_ADDRESS 0x20
 #define ACTUATOR_ADDRESS  0x40
 
-#define HEARTBEATOFFSET 40
-
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR RGB_GREEN
 
@@ -16,7 +14,7 @@ void printData(
 	uint8_t  heartbeat
 ){
 	char str[16]="";
-	sprintf(str, "Heartbeat %d", heartbeat + HEARTBEATOFFSET);
+	sprintf(str, "Heartbeat %d", heartbeat);
 	displayFillScreen(display, BACKGROUND_COLOR);
 	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
 }
