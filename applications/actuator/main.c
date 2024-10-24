@@ -12,39 +12,90 @@
 #define BACKGROUND_COLOR RGB_BLACK
 #define TEXT_COLOR RGB_GREEN
 
+#define FONTSIZE 16
+#define FONTWIDTH 8
+
+#define LCD_TEXT_X 72
+#define LCD_TEXT_Y 104
+
+void printInt(
+	display_t *display,
+	FontxFile *fx16G,
+	int x,
+	int y,
+	const char *string,
+	int n
+){
+	char str[32]="";
+	int size = sprintf(str, string, n);
+	displayDrawFillRect(
+		display,
+		x,
+		y,
+		x + size * FONTWIDTH,
+		y + FONTSIZE - 1,
+		BACKGROUND_COLOR
+	);
+	displayDrawString(
+		display,
+		fx16G,
+		x,
+		y + FONTSIZE,
+		(uint8_t *)str,
+		TEXT_COLOR
+	);
+}
+
+void initPrintData(
+	display_t *display,
+	FontxFile *fx16G
+){
+	displayFillScreen(display, BACKGROUND_COLOR);
+	displayDrawString(
+		display,
+		fx16G,
+		LCD_TEXT_X,
+		LCD_TEXT_Y + FONTSIZE,
+		(uint8_t *)"Amplitude:",
+		TEXT_COLOR
+	);
+	displayDrawString(
+		display,
+		fx16G,
+		LCD_TEXT_X,
+		LCD_TEXT_Y + 2 * FONTSIZE,
+		(uint8_t *)"Frequency:",
+		TEXT_COLOR
+	);
+}
+
 void printData(
 	display_t *display,
 	FontxFile *fx16G,
 	uint8_t  command
 ){
-	char
-		str[512]="";
-	uint8_t
-		a,
-		f;
-
-	// clear screen
-	displayFillScreen(display, BACKGROUND_COLOR);
-
-	// display rest of info
-	a = command >> 4;
-	f = command & 0x0f;
-	sprintf(str, "Amplitude %d", a);
-	displayDrawString(display, fx16G, 120, 16, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "Frequency %d", f);
-	displayDrawString(display, fx16G, 120, 32, (uint8_t *)str, TEXT_COLOR);
+	printInt(
+		display,
+		fx16G,
+		LCD_TEXT_X + 10 * FONTWIDTH,
+		LCD_TEXT_Y,
+		"%d",
+		command >> 4
+	);
+	printInt(
+		display,
+		fx16G,
+		LCD_TEXT_X + 10 * FONTWIDTH,
+		LCD_TEXT_Y + FONTSIZE,
+		"%d",
+		command & 0x0f
+	);
 }
 
 int main(){
 	// It ain't a bo'o o' wo'er init?
 	// Ra'er sunny wea'er init?
 	pynq_init();
-
-	// set up screen
-	display_t display;
-	display_init(&display);
-	display_set_flip(&display, true, true);
-	displayFillScreen(&display, BACKGROUND_COLOR);
 
 	// set up screen font
 	uint8_t
@@ -54,10 +105,16 @@ int main(){
 	InitFontx(fx16G, "/boot/ILGH16XB.FNT", "");
 	GetFontx(fx16G, 0, buffer_fx16G, &fontWidth_fx16G, &fontHeight_fx16G);
 
+	// set up screen
+	display_t display;
+	display_init(&display);
+	display_set_flip(&display, true, true);
+	initPrintData(&display, fx16G);
+
 	// initialise variabes
 	uint8_t
-		Amplitude = 3,
-		Frequency = 5,
+		Amplitude = 0,
+		Frequency = 0,
 		Command;
 	Command = ( (Amplitude << 4) + Frequency );
 
