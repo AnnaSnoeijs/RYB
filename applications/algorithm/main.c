@@ -110,32 +110,11 @@ void printData(
 	displayDrawString(display, fx16G, LCD_MATRIX_X + 4 * FONTWIDTH * f, LCD_MATRIX_Y + FONTSIZE  * (a + 1), (uint8_t *)str, TEXT_COLOR);
 
 	// display rest of info
-	/* old code
-	displayDrawFillRect(
-		display,
-		LCD_TEXT_NUMBERS_X,
-		LCD_TEXT_Y,
-		LCD_TEXT_NUMBERS_X + 3 * FONTWIDTH,
-		LCD_TEXT_Y	 + 5 * FONTSIZE,
-		BACKGROUND_COLOR
-	);
-	sprintf(str, "%03d", Matrix[a][f].heartbeat);
-	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "%03d", Matrix[a][f].volume);
-	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "%03d", Matrix[a][f].stress);
-	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 3 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "%d", a);
-	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 4 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
-	sprintf(str, "%d", f);
-	displayDrawString(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 5 * FONTSIZE, (uint8_t *)str, TEXT_COLOR);
-	/*/
 	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 1 * FONTSIZE, "%03d", Matrix[a][f].heartbeat);
 	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 2 * FONTSIZE, "%03d", Matrix[a][f].volume);
 	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 3 * FONTSIZE, "%03d", Matrix[a][f].stress);
 	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 4 * FONTSIZE, "%d", a);
 	printInt(display, fx16G, LCD_TEXT_NUMBERS_X, LCD_TEXT_Y + 5 * FONTSIZE, "%d", f);
-	/**/
 }
 
 void tempCommandUpdateFunc(uint8_t *command){
